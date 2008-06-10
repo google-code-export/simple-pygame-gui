@@ -1,4 +1,13 @@
-Version .9
+* Version .9.1 *
+
+Massimo Tristnao added:
+  onItemSelected callback to lists
+  Updated gui.py
+  Updated test.py
+  Callbacks to documentation.  
+
+
+* Version .9 *
 
 Mark Gerads added:
 	Window shade button
