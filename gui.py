@@ -24,10 +24,10 @@ defaultComboBoxStyle = None
 events = None
 
 ## FUNCTIONS ##
-def setEvents(eventList):
+def setEvents():
     import gui
-    gui.events = eventList
-    return eventList
+    gui.events = pygame.event.get()
+    return gui.events
 
 ### STYLE CREATION ###
 def createButtonStyle(font, fontcolor,  surface, *spaces):  
