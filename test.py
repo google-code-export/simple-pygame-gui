@@ -122,9 +122,13 @@ OptionBox(position = desktop.nextPosition(5), parent = desktop, text = "Option 1
 OptionBox(position = desktop.nextPosition(1), parent = desktop, text = "Option 2")
 OptionBox(position = desktop.nextPosition(1), parent = desktop, text = "Option 3")
 
-ListBox(position = desktop.nextPosition(5), size = (150, 100), parent = desktop,  items =["Row number %d" % i for i in range(10)])
+def itemSelected(widget):
+  label.text = "You selected the row number " + str(widget.selectedIndex)
+  
+ListBox(position = desktop.nextPosition(5), size = (150, 100), parent = desktop,  items =["Row number %d" % i for i in range(10)]).onItemSelected = itemSelected
 
-#ComboBox(position = desktop.nextPosition(5), size = (150, 20), parent = desktop,  items = range(5), value = 3)
+
+
 
 #EXECUTION
 while run:

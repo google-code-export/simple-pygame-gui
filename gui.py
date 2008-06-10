@@ -1127,46 +1127,7 @@ class OptionBox(Widget):
                             self._parent.selectedOptionBox = widget                    
                             break
             
-        value = property(lambda self: self._value, _set_value)
-
-class ComboBox(Widget):
-    def __init__(self,  position = (0,0), size = (120,20), parent = None, style = None, enabled = True, items = [], value = None):
-        #Custom attributes
-        self.items = items
-        
-        self.value = value
-        
-        self.dynamicAttributes.extend(("items", "value"))
-        
-        self.surf = None
-        
-        if not style:
-            if defaultComboBoxStyle:
-                style = defaultComboBoxStyle
-            else:
-                raise GuiException("ComboBox must have a style.")
-        
-        #Finally lets the base init
-        Widget.__init__(self,position,size,parent,style,enabled)
-
-    def refresh(self):
-        if self.size[1] != self.style['normal'].get_height():
-            self.size = self.size[0], self.style['normal'].get_height()
-        
-        if not self.surf or self.surf.get_size() != self.size:
-            self.surf = pygame.Surface(self.size, pygame.SRCALPHA)
-        
-        if self.value:
-            self.textsurf = self.style['font'].render(str(self.value),self.style['antialias'], self.style['font-color'], self.style['bg-color'])
-        else:
-            self.textsurf = None
-        
-        self.surf.fill(self.style['bg-color'])
-        self.surf.blit(self.textsurf, (4, center((0,0), self.size, self.textsurf.get_size())[1]))
-    
-    def draw(self, surf):
-        surf.blit(self.surf, self.position)
-        
+        value = property(lambda self: self._value, _set_value)       
         
 class ListBox(Widget):
     
@@ -1193,6 +1154,9 @@ class ListBox(Widget):
                                         'padding': 2, 'autosize': False}
             
             style = gui.defaultListBoxStyle
+        
+        #Callbacks
+        self.onItemSelected = None
         
         #Finally lets the base init
         Widget.__init__(self,position,size,parent,style,enabled)
@@ -1222,6 +1186,7 @@ class ListBox(Widget):
     def update(self, topmost):
         Widget.update(self, topmost)
         
+        oldSelectedIndex = self.selectedIndex
         
         if self.mouseover:
             my = mouse.get_pos()[1]
@@ -1259,6 +1224,11 @@ class ListBox(Widget):
         if self.needsRefresh:
             self.needsRefresh = False
             self.refresh()
+          
+        #Checks if selected index has changed
+        if oldSelectedIndex != self.selectedIndex:
+          if self.onItemSelected:
+            self.onItemSelected(self)
             
     def refresh(self):    
         self._padding = self.style['padding']
