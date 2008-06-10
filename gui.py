@@ -729,10 +729,11 @@ class Window(Widget, Container):
         self.shadeable = shadeable
         self.moving = None
         
-        self.dynamicAttributes.extend(["text", "closeable"])
+        self.dynamicAttributes.extend(["text", "closeable", "shadeable"])
         
         self.closebutton = ImageButton(parent = self, style = style['close-button-style'])
         self.shadebutton = ImageButton(parent = self, style = style['shade-button-style'])
+        
         #Callbacks
         self.onClose=None
         self.onMove=None
@@ -758,18 +759,21 @@ class Window(Widget, Container):
     def close(self):
         self.parent.remove(self)
         if self.onClose: self.onClose(self)
+          
     def shade(self):
         if self.onShade: self.onShade(self)
         if self.shaded: return
         self.shaded = self.size[1]
         self.size = (self.size[0],2*self.style['offset'][0] + self.shadebutton.size[1])
-        self.refresh()
+        self.needsRefresh = True
+        
     def unshade(self):
         if self.onUnshade: self.onUnshade(self)
         if not self.shaded: return 
         self.size = (self.size[0],self.shaded)
         self.shaded = None
-        self.refresh()
+        self.needsRefresh = True
+        
     def refresh(self):
         #Reposition of the closebutton if visible
         if self.closeable:
@@ -778,6 +782,7 @@ class Window(Widget, Container):
                                      self.style['offset'][1])
         else:
             self.closebutton.visible = False
+            
         if self.shadeable:
             self.shadebutton.visible = True
             self.shadebutton.position = (self.size[0] - 2*(self.style['offset'][0] + self.shadebutton.size[0]),
