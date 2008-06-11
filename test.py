@@ -46,9 +46,6 @@ labelStyleCopy['autosize'] = False
 
 label = Label(position = (50,60),size = (200,100), parent = desktop, text = "Click the button for a proverb!", style = labelStyleCopy)
 
-#Create the button
-button = Button(position = (50,165), size = (200,0), parent = desktop, text = "Teach me!")
-
 #Create the onClick callback for the button
 import random
 clicked = 0
@@ -58,10 +55,14 @@ def buttonOnClick(button):
     label.text ="Clicked %d times.\nHere's the proverb: \"%s\"" % (clicked, random.choice(strings))
 
 #...and pass it to the button setting its onClick attribute.
-button.onClick = buttonOnClick
+Button(position = (50,165), size = (200,0), parent = desktop, text = "Teach me!").onClick = buttonOnClick
 
-button2 = Button(position = (50, 190), size = (200,0), parent = desktop, text = "Quit")
-button2.onClick = lambda button:pygame.quit()
+
+def quitclick(button):
+    global run
+    run= False
+
+Button(position = (50, 190), size = (200,0), parent = desktop, text = "Quit").onClick = quitclick 
 
 
 #Let's create a window
@@ -99,6 +100,7 @@ def button4_onClick(button):
         def temp(window):
             window.text=text
         return temp
+    
     win.onMove=changeTitle('I\'m Moving!')
     win.onMoveStop=changeTitle('I\'m Not Moving!')
     win.onShade=changeTitle('I\'m Shaded!')
@@ -126,8 +128,6 @@ def itemSelected(widget):
   label.text = "You selected the row number " + str(widget.selectedIndex)
   
 ListBox(position = desktop.nextPosition(5), size = (150, 100), parent = desktop,  items =["Row number %d" % i for i in range(10)]).onItemSelected = itemSelected
-
-
 
 
 #EXECUTION

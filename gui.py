@@ -687,17 +687,16 @@ class Button(Widget):
             
             self.surf.blit(right, (self.size[0] - right.get_width(), 0))
         
-        if not self.image:
+        if self.image:
+            self.textsurf = image
+        else:
             self.textsurf = self.style['font'].render(self.text, True, self.style['font-color'])
         
         
     def draw(self, surf):
         if self.visible:
             surf.blit(self.surf, self.position)
-            if self.image:
-                surf.blit(self.image, center(self.position, self.size, self.image.get_size()))
-            else:
-                surf.blit(self.textsurf, (self.position[0] + self.size[0] / 2 - self.textsurf.get_size()[0]/2,
+            surf.blit(self.textsurf, (self.position[0] + self.size[0] / 2 - self.textsurf.get_size()[0]/2,
                                       self.position[1] + self.size[1] / 2 - self.textsurf.get_size()[1]/2))
 
 class ImageButton(Widget):      
