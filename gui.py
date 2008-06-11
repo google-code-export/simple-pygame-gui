@@ -634,14 +634,15 @@ class Label(Widget):
                 draw.rect(surf, self.style['border-color'], self.rect, self.style['border-width'])
 
 class Button(Widget):
-    def __init__(self,  position = (0,0), size = (120,20), parent = None, style = None, enabled = True, text = "Button"):
+    def __init__(self,  position = (0,0), size = (120,20), parent = None, style = None, enabled = True, text = "Button", image = None):
         #Custom attributes
         self.text = text
+        self.image = image
         
         #Private button attributes
         self.suffix = ""
         
-        self.dynamicAttributes.append("text")
+        self.dynamicAttributes.extend(["text", "image"])
         
         if not style:
             if defaultButtonStyle:
@@ -669,7 +670,11 @@ class Button(Widget):
             middle = self.style['middle' + suffix]
             right = self.style['right' + suffix]
             
-            self.size = (max(self.size[0], left.get_width() + middle.get_width() +
+            if self.image:
+                self.size = (self.image.get_width() + left.get_width() +
+                             right.get_width(), left.get_height())
+            else:
+                self.size = (max(self.size[0], left.get_width() + middle.get_width() +
                              right.get_width()), left.get_height())
             
             self.surf = pygame.Surface(self.size, pygame.SRCALPHA)
@@ -682,13 +687,17 @@ class Button(Widget):
             
             self.surf.blit(right, (self.size[0] - right.get_width(), 0))
         
-        self.textsurf = self.style['font'].render(self.text, True, self.style['font-color'])
+        if not self.image:
+            self.textsurf = self.style['font'].render(self.text, True, self.style['font-color'])
         
         
     def draw(self, surf):
         if self.visible:
             surf.blit(self.surf, self.position)
-            surf.blit(self.textsurf, (self.position[0] + self.size[0] / 2 - self.textsurf.get_size()[0]/2,
+            if self.image:
+                surf.blit(self.image, center(self.position, self.size, self.image.get_size()))
+            else:
+                surf.blit(self.textsurf, (self.position[0] + self.size[0] / 2 - self.textsurf.get_size()[0]/2,
                                       self.position[1] + self.size[1] / 2 - self.textsurf.get_size()[1]/2))
 
 class ImageButton(Widget):      
