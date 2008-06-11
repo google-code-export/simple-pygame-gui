@@ -136,7 +136,7 @@ while run:
     display.set_caption(str(int(clock.get_fps())))
     
     #Just for exit        
-    for e in gui.setEvents(pygame.event.get()):
+    for e in gui.setEvents():
         if e.type == pygame.QUIT:
             run = False
     
