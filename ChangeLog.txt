@@ -1,10 +1,14 @@
 * Version .9.1 *
 
-Massimo Tristnao added:
+Massimo Tristano added:
   onItemSelected callback to lists
   Updated gui.py
   Updated test.py
   Callbacks to documentation.  
+  
+  Desktop callbacks
+  Possibility to pass an integer to the position parameter in the widget creation, that will be transformed
+  using parent.nextPosition(theIntegerPassed).
 
 
 * Version .9 *
