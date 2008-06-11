@@ -1,3 +1,11 @@
+* Version .9.2*
+
+Massimo Tristano added:
+  Desktop callbacks
+  Possibility to pass an integer to the position parameter in the widget creation, that will be transformed
+  using parent.nextPosition(theIntegerPassed)
+  Images on buttons instead of text supported.
+
 * Version .9.1 *
 
 Massimo Tristano added:
@@ -5,11 +13,6 @@ Massimo Tristano added:
   Updated gui.py
   Updated test.py
   Callbacks to documentation.  
-  
-  Desktop callbacks
-  Possibility to pass an integer to the position parameter in the widget creation, that will be transformed
-  using parent.nextPosition(theIntegerPassed).
-
 
 * Version .9 *
 
