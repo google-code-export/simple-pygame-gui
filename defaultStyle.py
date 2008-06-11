@@ -1,14 +1,16 @@
 import pygame
+import os
 
+path = os.path.dirname(__file__)
 
 def init(gui):
     #Surface Loading
-    buttonsurf = pygame.image.load("art/button.png").convert_alpha()
-    closesurf = pygame.image.load('art/closebutton.png').convert_alpha()
-    shadesurf = pygame.image.load('art/shadebutton.png').convert_alpha()
-    checksurf = pygame.image.load('art/checkbox.png').convert_alpha()
-    optionsurf = pygame.image.load('art/optionbox.png').convert_alpha()
-    combosurf = pygame.image.load('art/combobox.png').convert_alpha()
+    buttonsurf = pygame.image.load(os.path.join(path,'art/button.png')).convert_alpha()
+    closesurf = pygame.image.load(os.path.join(path,'art/closebutton.png')).convert_alpha()
+    shadesurf = pygame.image.load(os.path.join(path,'art/shadebutton.png')).convert_alpha()
+    checksurf = pygame.image.load(os.path.join(path,'art/checkbox.png')).convert_alpha()
+    optionsurf = pygame.image.load(os.path.join(path,'art/optionbox.png')).convert_alpha()
+    combosurf = pygame.image.load(os.path.join(path,'art/combobox.png')).convert_alpha()
     
     #Default gui font
     gui.defaultFont = pygame.font.SysFont("Arial", 12)
@@ -35,9 +37,10 @@ def init(gui):
     #Window style
     gui.defaultWindowStyle = {'font': gui.defaultFont,
                             'font-color': (255,255,255),
-                            'bg-color' : (0,0,0,100),
+                            'bg-color' : (0,0,0,150),
+                            'shaded-bg-color' : (0,50,100,100),
                             'shaded-font-color': (255,200,0),
-                            'shaded-bg-color' : (100,0,0,100),
+
                             'border-width': 1,
                             'border-color': (150,150,150, 255),
                             'offset': (5,5),

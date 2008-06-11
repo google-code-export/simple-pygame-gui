@@ -310,14 +310,18 @@ class Widget(object):
     
     def __init__(self, position = (0,0), size = (100,20), parent = None, style = None, enabled = True):
         if not parent:
-            raise GuiException("Could not create a new widget with None parent")        
+            raise GuiException("Could not create a new widget with None parent")
+        
+        if isinstance(position,int):
+            position = parent.nextPosition(position)
+                
         self.position = position
         self.size = size        
         self.style = style       
         self.enabled = enabled
         self._parent = None
         
-        #Sets the desktop in which the widget is
+        #Sets the  in which the widget is
         self.desktop = parent.desktop
     
         self.visible = True
@@ -514,6 +518,14 @@ class Desktop(Container):
         #Tricky: TODO
         self.desktop = self
         
+        self.mousedown = [0,0,0]
+                
+        #Callbacks
+        self.onClick = None
+        self.onMouseDown = None
+        self.onMouseMove = None
+        
+                
         self.size = pygame.display.get_surface().get_size()
         
     def add(self, widget):
@@ -535,7 +547,26 @@ class Desktop(Container):
         pygame.mouse.b1,pygame.mouse.b2,pygame.mouse.b3 = pygame.mouse.get_pressed()
         
         topmost = self.findTopMost(mouse.get_pos())
-               
+                    
+        if topmost == self: #Desktop contains the mouse cursor
+            if self.onMouseMove:
+                self.onMouseMove(pygame.mouse.get_pos(), (pygame.mouse.b1, pygame.mouse.b2, pygame.mouse.b3))
+            
+            if pygame.mouse.b1 and not self.mousedown[0] and self.onMouseDown:
+                self.onMouseDown(pygame.mouse.get_pos(), 1)
+            elif not pygame.mouse.b1 and self.mousedown[0] and self.onClick:
+                self.onClick(pygame.mouse.get_pos(), (pygame.mouse.b1, pygame.mouse.b2, pygame.mouse.b3))
+                
+            self.mousedown[0] = pygame.mouse.b1
+                
+            if pygame.mouse.b2 and not self.mousedown[1] and self.onMouseDown:
+                self.onMouseDown(pygame.mouse.get_pos(), 2)
+            self.mousedown[1] = pygame.mouse.b2
+            
+            if pygame.mouse.b3 and not self.mousedown[2] and self.onMouseDown:
+                self.onMouseDown(pygame.mouse.get_pos(), 3)
+            self.mousedown[2] = pygame.mouse.b3      
+                
         if pygame.mouse.b1:                    
             if self.focused and self.focused != self:
                 if topmost != self.focused.parent:
@@ -545,7 +576,7 @@ class Desktop(Container):
             else: 
                 self.focused = topmost
             topmost = None        
-        
+            
         Container.update(self, topmost)
         
         
@@ -776,16 +807,16 @@ class Window(Widget, Container):
         
     def refresh(self):
         #Reposition of the closebutton if visible
+        pos0 = self.size[0] - self.style['offset'][0] - self.closebutton.size[0], self.style['offset'][1]
         if self.closeable:
             self.closebutton.visible = True
-            self.closebutton.position = (self.size[0] - self.style['offset'][0] - self.closebutton.size[0],
-                                     self.style['offset'][1])
+            self.closebutton.position = pos0
         else:
             self.closebutton.visible = False
             
         if self.shadeable:
             self.shadebutton.visible = True
-            self.shadebutton.position = (self.size[0] - 2*(self.style['offset'][0] + self.shadebutton.size[0]),
+            self.shadebutton.position = pos0 if not self.closeable else (self.size[0] - 2*(self.style['offset'][0] + self.shadebutton.size[0]),
                                      self.style['offset'][1])
         else:
             self.shadebutton.visible = False
