@@ -130,6 +130,8 @@ def itemSelected(widget):
 ListBox(position = desktop.nextPosition(5), size = (150, 100), parent = desktop,  items =["Row number %d" % i for i in range(10)]).onItemSelected = itemSelected
 
 
+ScrollArea(position = 10, parent = desktop)
+
 #EXECUTION
 while run:
     clock.tick()

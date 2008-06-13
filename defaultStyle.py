@@ -12,6 +12,10 @@ def init(gui):
     optionsurf = pygame.image.load(os.path.join(path,'art/optionbox.png')).convert_alpha()
     combosurf = pygame.image.load(os.path.join(path,'art/combobox.png')).convert_alpha()
     
+    topsurf = pygame.image.load(os.path.join(path,'art/topscroll.png')).convert_alpha()
+    bottomsurf = pygame.image.load(os.path.join(path,'art/bottomscroll.png')).convert_alpha()
+    cursorsurf = pygame.image.load(os.path.join(path,'art/cursor.png')).convert_alpha()
+    
     #Default gui font
     gui.defaultFont = pygame.font.SysFont("Arial", 12)
     
@@ -86,3 +90,10 @@ def init(gui):
                                                        borderwidth = 1, bordercolor = (31,52,78),
                                                        bgcolor = (55,55,55))
     
+    #(top_imagebutton_style, bottom_imagebutton_style, cursor_imagebutton_style, bgcolor = (0,0,0,0), bar_bgcolor = (0,0,0,100), vbar_width = 0):
+    gui.defaultScrollAreaStyle = gui.createScrollAreaStyle(
+                                gui.createImageButtonStyle(topsurf, 14),
+                                gui.createImageButtonStyle(bottomsurf, 14),
+                                gui.createImageButtonStyle(cursorsurf, 14))
+                                
+                                                        

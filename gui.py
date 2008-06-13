@@ -19,7 +19,7 @@ defaultTextBoxStyle = None
 defaultCheckBoxStyle = None
 defaultOptionBoxStyle = None
 defaultListBoxStyle = None
-defaultComboBoxStyle = None
+defaultScrollAreaStyle= None
 
 events = None
 
@@ -171,6 +171,25 @@ def createComboBoxStyle(font, image, singleImageWidth, font_color = (0,0,0), bor
     style['disabled'] = image.subsurface(Rect(singleImageWidth*3,0,singleImageWidth,h))    
 
     return style
+
+def createScrollAreaStyle(top_imagebutton_style, bottom_imagebutton_style, cursor_imagebutton_style, bgcolor = (0,0,0,0), bar_bgcolor = (0,0,0,100), vbar_width = 0):
+    
+    if vbar_width <= 0:
+        vbar_width = min(top_imagebutton_style['image-normal'].get_width(), cursor_imagebutton_style['image-normal'].get_width())
+    
+        
+    
+    style = {'top-button-style': top_imagebutton_style,
+             'bottom-button-style': bottom_imagebutton_style,
+             'cursor-button-style': cursor_imagebutton_style,
+             'bgcolor': bgcolor,
+             'vbar-width': vbar_width,
+             'bar-bgcolor': bar_bgcolor
+             }
+    
+    return style
+    
+        
 
 ### UTILS ###
 
@@ -375,14 +394,10 @@ class Widget(object):
                 #Sets the button is pressed
                 self.mousedown = True
                 
-                #Calls on mouse down event if present
-                if self.onMouseDown:
-                    self.onMouseDown(self)
-                
                 #Refreshes if he wants
                 if self.REFRESH_ON_MOUSE_DOWN:
                     self.needsRefresh = True
-            
+                
             #In this case, button is not pressed but the mouse was pressed before
             elif not mouse.b1 and self.mousedown:
                 self.mousedown = False
@@ -397,6 +412,10 @@ class Widget(object):
                 if self.REFRESH_ON_MOUSE_CLICK:
                     self.needsRefresh = True
         
+            #Calls on mouse down event if present
+            if self.onMouseDown:
+                self.onMouseDown(self)
+                
         #Refreshes if needed
         if self.needsRefresh:
             self.refresh()
@@ -1322,3 +1341,37 @@ class ListBox(Widget):
         #Border
         if self.style['border-width']:
             draw.rect(surf, self.style['border-color'] ,  self.rect, self.style['border-width'])
+
+class ScrollArea(Widget, Container):
+    def __init__(self,  position = (0,0), size = (100,100), parent = None, style = None, enabled = True):
+        Container.__init__(self)
+        
+        #Custom attributes
+        self.v_scrolling = 0
+        
+        self.dynamicAttributes.extend(['value', 'max'])
+        
+        if not style:
+            if defaultScrollAreaStyle:
+                style = defaultScrollAreaStyle
+            else:
+                raise GuiException("Scrollbars must have a style!")
+                
+        #Finally lets the base init
+        Widget.__init__(self,position,size,parent,style, enabled)
+        
+        self._topbtn = ImageButton(parent = self, style = style['top-button-style']).onMouseDown = self.top_clicked
+        self._bottombtn = ImageButton(position = size[1] - style['cursor-button-style']['image-normal'].get_height(), parent = self, style = style['bottom-button-style'])
+        self._cursorbtn = ImageButton(parent = self, style = style['cursor-button-style'])
+
+        
+        
+    def top_clicked(self, widget):
+        pass
+    
+    def refresh(self):
+        if not self.surf or self.surf.get_size() != self.size:
+            self.surf = pygame.Surface(self.size, )
+        
+        self.surf.fill(self.style['bgcolor'])
+        
