@@ -534,11 +534,13 @@ class Desktop(Container):
     def __init__(self):
         Container.__init__(self)
         
-        #Tricky: TODO
+	#We have to set this because when a children is added, the Container sets its desktop attribute to self.desktop.
         self.desktop = self
         
+	#Attributes
         self.mousedown = [0,0,0]
-                
+	self.focused = None
+	
         #Callbacks
         self.onClick = None
         self.onMouseDown = None
