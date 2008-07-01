@@ -17,7 +17,7 @@ def init(gui):
     cursorsurf = pygame.image.load(os.path.join(path,'art/cursor.png')).convert_alpha()
     
     #Default gui font
-    gui.defaultFont = pygame.font.SysFont("Arial", 12)
+    gui.defaultFont = pygame.font.Font(os.path.join(path, 'art', 'font.otf'), 14)
     
     #Label Style
     gui.defaultLabelStyle = {'font-color': (255,255,255),
