@@ -17,7 +17,9 @@ def init(gui):
     cursorsurf = pygame.image.load(os.path.join(path,'art/cursor.png')).convert_alpha()
     
     #Default gui font
-    gui.defaultFont = pygame.font.Font(os.path.join(path, 'art', 'font.otf'), 14)
+    gui.defaultFont = pygame.font.Font(os.path.join(path, 'art', 'font.otf'), 12)
+    titleFont = pygame.font.Font(os.path.join(path, 'art', 'font.otf'), 12)
+    titleFont.set_bold(True)
     
     #Label Style
     gui.defaultLabelStyle = {'font-color': (255,255,255),
@@ -39,7 +41,7 @@ def init(gui):
     shadeButtonStyle = gui.createImageButtonStyle(shadesurf, 20)
     
     #Window style
-    gui.defaultWindowStyle = {'font': gui.defaultFont,
+    gui.defaultWindowStyle = {'font': titleFont,
                             'font-color': (255,255,255),
                             'bg-color' : (0,0,0,150),
                             'shaded-bg-color' : (0,50,100,100),

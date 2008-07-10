@@ -328,8 +328,8 @@ class Widget(object):
     dynamicAttributes = []
     
     def __init__(self, position = (0,0), size = (100,20), parent = None, style = None, enabled = True):
-        if not parent:
-            raise GuiException("Could not create a new widget with None parent")
+        #if not parent:
+        #    raise GuiException("Could not create a new widget with None parent")
         
         if isinstance(position,int):
             position = parent.nextPosition(position)
@@ -341,7 +341,8 @@ class Widget(object):
         self._parent = None
         
         #Sets the  in which the widget is
-        self.desktop = parent.desktop
+	if parent:
+		self.desktop = parent.desktop
     
         self.visible = True
         
@@ -366,7 +367,8 @@ class Widget(object):
         self.dynamicAttributes.extend(("size", "style", 'enabled'))
         
         #After refreshing my self for the first time, I add myself to my parent
-        self._set_parent(parent)
+	if parent:
+		self._set_parent(parent)
     
     
     def __setattr__(self, attr, value):
@@ -464,7 +466,9 @@ class Container():
         
         #Explained later
         self._nextPosition = (0,0)
-        
+        self.lastPosition = (0,0)
+	
+        	
         #Contains the optionbox currently checked as true
         self.selectedOptionBox = None
         
@@ -473,7 +477,8 @@ class Container():
         
         #Updates the next free position for widgets
         self._nextPosition = widget.position[0], widget.position[1] + widget.size[1]
-    
+	self.lastPosition = widget.position[0], widget.position[1]
+	
     def remove(self, widget):
         self.widgets.remove(widget)
     
@@ -494,7 +499,7 @@ class Container():
                 
                 for widget in self.widgets:
                     widget.draw(temp_surf)
-                
+			
                 surf.blit(temp_surf, self.position)
             else:
                 surf.blit(self.surf, self.position)
@@ -505,8 +510,8 @@ class Container():
                     subsurf = surf.subsurface(subsurfrect)
                            
                     for widget in self.widgets:
-                        widget.draw(subsurf)       
-    
+                        widget.draw(subsurf)
+	    
     def nextPosition(self, spacing):
         return self._nextPosition[0], self._nextPosition[1] + spacing
     
@@ -534,33 +539,35 @@ class Desktop(Container):
     def __init__(self):
         Container.__init__(self)
         
-	#We have to set this because when a children is added, the Container sets its desktop attribute to self.desktop.
+        #We have to set this because when a children is added, the Container sets its desktop attribute to self.desktop.
         self.desktop = self
         
-	#Attributes
+        #Attributes
         self.mousedown = [0,0,0]
-	self.focused = None
-	
+        self.focused = None
+        
+        self.temp_surf = pygame.Surface((display.get_surface().get_size()), pygame.SRCALPHA).convert_alpha()
+        self.temp_surf.fill((0,0,0,150))
+        
         #Callbacks
         self.onClick = None
         self.onMouseDown = None
         self.onMouseMove = None
         
-                
+        
         self.size = pygame.display.get_surface().get_size()
         
     def add(self, widget):
-        "Adds a widget on the desktop. If it \"gets the focus\", it will be placed on top of present widgets, otherwise behind them."        
+        "Adds a widget on the desktop. If it \"gets the focus\", it will be placed on top of present widgets, otherwise behind them."               
         self.focused = widget
         
         if widget.HIGH_PRIORITY:
             self.widgets.append(widget)
         else:
             self.widgets.insert(0, widget)
-            
             #Updates the next free position for widgets
             self._nextPosition = widget.position[0], widget.position[1] + widget.size[1]
-
+            
 
     def update(self):
         #Checks all the events occurred in last frame
@@ -568,27 +575,31 @@ class Desktop(Container):
         pygame.mouse.b1,pygame.mouse.b2,pygame.mouse.b3 = pygame.mouse.get_pressed()
         
         topmost = self.findTopMost(mouse.get_pos())
+            
+        if hasattr(self.widgets[-1], "dialog") and self.widgets[-1].dialog:
+            self.widgets[-1].update(topmost)
+        else:
+            if topmost == self: #Desktop contains the mouse cursor
+                if self.onMouseMove:
+                    self.onMouseMove(pygame.mouse.get_pos(), (pygame.mouse.b1, pygame.mouse.b2, pygame.mouse.b3))
+                
+                if pygame.mouse.b1 and not self.mousedown[0] and self.onMouseDown:
+                    self.onMouseDown(pygame.mouse.get_pos(), 1)
+                elif not pygame.mouse.b1 and self.mousedown[0] and self.onClick:
+                    self.onClick(pygame.mouse.get_pos(), (pygame.mouse.b1, pygame.mouse.b2, pygame.mouse.b3))
                     
-        if topmost == self: #Desktop contains the mouse cursor
-            if self.onMouseMove:
-                self.onMouseMove(pygame.mouse.get_pos(), (pygame.mouse.b1, pygame.mouse.b2, pygame.mouse.b3))
-            
-            if pygame.mouse.b1 and not self.mousedown[0] and self.onMouseDown:
-                self.onMouseDown(pygame.mouse.get_pos(), 1)
-            elif not pygame.mouse.b1 and self.mousedown[0] and self.onClick:
-                self.onClick(pygame.mouse.get_pos(), (pygame.mouse.b1, pygame.mouse.b2, pygame.mouse.b3))
+                self.mousedown[0] = pygame.mouse.b1
+                    
+                if pygame.mouse.b2 and not self.mousedown[1] and self.onMouseDown:
+                    self.onMouseDown(pygame.mouse.get_pos(), 2)
+                self.mousedown[1] = pygame.mouse.b2
                 
-            self.mousedown[0] = pygame.mouse.b1
+                if pygame.mouse.b3 and not self.mousedown[2] and self.onMouseDown:
+                    self.onMouseDown(pygame.mouse.get_pos(), 3)
+                self.mousedown[2] = pygame.mouse.b3      
                 
-            if pygame.mouse.b2 and not self.mousedown[1] and self.onMouseDown:
-                self.onMouseDown(pygame.mouse.get_pos(), 2)
-            self.mousedown[1] = pygame.mouse.b2
-            
-            if pygame.mouse.b3 and not self.mousedown[2] and self.onMouseDown:
-                self.onMouseDown(pygame.mouse.get_pos(), 3)
-            self.mousedown[2] = pygame.mouse.b3      
                 
-        if pygame.mouse.b1:                    
+        if pygame.mouse.b1:                  
             if self.focused and self.focused != self:
                 if topmost != self.focused.parent:
                     if hasattr(self.focused, 'lostFocus'):
@@ -596,20 +607,27 @@ class Desktop(Container):
                     self.focused = topmost
             else: 
                 self.focused = topmost
-            topmost = None        
-            
-        Container.update(self, topmost)
         
+        if not hasattr(self.widgets[-1], "dialog") or not self.widgets[-1].dialog:      
+            Container.update(self, topmost)
         
-
     def draw(self):
         #Desktop draws directly on screen
         
         #Supposing method update was called before this, all widgets have redrawn their
         #private surfaces so they are ready to be drawn on the screen.
+        done = False
         for widget in self.widgets:
+            if not done and hasattr(widget,"dialog") and widget.dialog:
+                done = True
+                display.get_surface().blit(self.temp_surf, (0,0))
+                
             widget.draw(display.get_surface())
     
+    def remove(self, widget):
+        if widget in self.widgets:
+            self.widgets.remove(widget)
+
     def bringToFront(self, window):
         self.widgets.remove(window)
         self.widgets.append(window)
@@ -709,7 +727,7 @@ class Button(Widget):
             self.surf.blit(right, (self.size[0] - right.get_width(), 0))
         
         if self.image:
-            self.textsurf = image
+            self.textsurf = self.image
         else:
             self.textsurf = self.style['font'].render(self.text, True, self.style['font-color'])
         
@@ -761,7 +779,7 @@ class Window(Widget, Container):
     REFRESH_ON_MOUSE_CLICK = False
     REFRESH_ON_MOUSE_LEAVE = False
     
-    def __init__(self,  position = None , size = (140,50), parent = None, style = None, text = "Window", closeable = True, shadeable = True):
+    def __init__(self,  position = None , size = (140,50), parent = None, style = None, text = "Window", closeable = True, shadeable = True, dialog = False):
         if parent.desktop != parent:
             #Parent is not a desktop, wrong way
             raise GuiException("Windows can belong only to Desktops (the parent must be a Desktop)")
@@ -769,6 +787,8 @@ class Window(Widget, Container):
         #For windows I have to set it before Widget.__init__, most important thing
         self._parent = parent
         self.desktop = parent
+        
+        self.dialog = dialog
         
         if not style:
             if defaultWindowStyle:
@@ -862,7 +882,7 @@ class Window(Widget, Container):
         if self.style['border-width']:
             draw.rect(self.surf, self.style['border-color'], Rect((0,0), self.size), self.style['border-width'])
             
-        self.surf.blit(self.style['font'].render(self.text, True, self.style[temp+'font-color']), self.style['offset'])
+        self.surf.blit(self.style['font'].render(self.text, True, self.style[temp+'font-color']), (self.style['offset'][0], self.style['offset'][1] + self.closebutton.size[1] / 2 - self.style['font'].get_height() / 2) )
 
     def update(self, topmost):
         
@@ -1116,6 +1136,7 @@ class OptionBox(Widget):
             
             #Callbacks
             self.onValueChanged = None
+	    self.onSelected = None
             
             Widget.__init__(self,position,size,parent,style,enabled)
             
@@ -1129,6 +1150,9 @@ class OptionBox(Widget):
                 
                 if self.onValueChanged:
                     self.onValueChanged(self)
+		
+                if self.value and self.onSelected:
+			self.onSelected(self)
             
         def refresh(self):           
             if self.enabled:
@@ -1245,7 +1269,7 @@ class ListBox(Widget):
                    
     def update(self, topmost):
         Widget.update(self, topmost)
-        
+	
         oldSelectedIndex = self.selectedIndex
         
         if self.mouseover:

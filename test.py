@@ -93,6 +93,12 @@ button3.onClick = button3_onClick
 
 button4 = Button(position = (300, 165), size = (200,0), parent = desktop, text = "Callbacks Window")
 
+def createDialogWindow(widget):
+	win = Window(position = center((0,0), (800,600), (200,100)), size = (200,100), parent = desktop, dialog = True) #DIALOG IS SET TO TRUE!!!
+	Label(text = "This is a dialog window. \nClick the close button to proceed", parent =win, position = (5,30))
+	
+Button(position = 10, size = (200,0), parent = desktop, text = "Dialog Window").onClick = createDialogWindow
+
 def button4_onClick(button):
     win = Window(position = (300,220), size = (400,200), parent = desktop, text = "A Callback Window")
     
@@ -131,7 +137,8 @@ def itemSelected(widget):
 ListBox(position = desktop.nextPosition(5), size = (150, 100), parent = desktop,  items =["Row number %d" % i for i in range(10)]).onItemSelected = itemSelected
 
 
-ScrollArea(position = 10, parent = desktop)
+
+#ScrollArea(position = 10, parent = desktop)
 
 #EXECUTION
 while run:
